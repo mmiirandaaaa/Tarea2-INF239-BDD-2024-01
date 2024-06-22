@@ -10,6 +10,8 @@ interface RegistrarUsuarioBody {
   descripcion?: string;
 }
 
+let fecha = new Date()
+
 /**
  * Realiza una petición tipo POST para registrar un nuevo usuario.
  * Se recibe un JSON con los datos del usuario y se guarda en la base de datos.
@@ -17,7 +19,8 @@ interface RegistrarUsuarioBody {
  */
 export const registrarUsuario = new Elysia()
     .post('/api/registrar', async ({ body }: { body: RegistrarUsuarioBody }) => {
-        console.log('Solicitud recibida:', body);
+
+        console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] Solicitud recibida de registro de usuario:',body.correo);
 
         const { nombre, correo, clave, descripcion } = body;
         
@@ -26,7 +29,7 @@ export const registrarUsuario = new Elysia()
             const newUser = await prisma.usuario.create({
                 data: { nombre, correo, clave, descripcion },
             });
-            console.log('Usuario registrado:', newUser);
+            console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] Se ha registrado correctamente al usuario:',body.correo);
             
             return {
                 estado: 200,
@@ -35,7 +38,7 @@ export const registrarUsuario = new Elysia()
             };
         } catch (error) {
             // Manejo de errores
-            console.error('Error al registrar usuario:', error);
+            console.error('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] Error al registrar al usuario');
             return {
                 estado: 400,
                 mensaje: 'Error al registrar usuario',

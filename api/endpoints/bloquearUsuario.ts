@@ -9,7 +9,9 @@ interface BloquearUsuarioBody {
   correo_bloquear: string;
 }
 
-/**
+let fecha = new Date()
+
+/*
  * Realiza una petición tipo POST para bloquear a un usuario.
  * Se recibe un JSON con las credenciales del usuario y el correo del usuario a bloquear.
  * Devuelve un JSON con el estado de la operación.
@@ -18,6 +20,8 @@ export const bloquearUsuario = new Elysia()
     .post('/api/bloquear', async ({ body }: { body: BloquearUsuarioBody }) => {
         const { correo, clave, correo_bloquear } = body;
         
+        console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] Solicitud de bloquear al usuario:', body.correo_bloquear)
+
         try {
             // Buscar al usuario que hace la petición en la base de datos
             const usuario = await prisma.usuario.findUnique({ where: { correo } });
@@ -34,6 +38,8 @@ export const bloquearUsuario = new Elysia()
                             usuario_bloqueado_id: usuarioBloqueado.id,
                         },
                     });
+
+                    console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] Se ha bloqueado al usuario:',usuarioBloqueado.correo)
                     
                     return {
                         estado: 200,
@@ -41,6 +47,7 @@ export const bloquearUsuario = new Elysia()
                         bloqueado
                     };
                 } else {
+                    console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] No se ha encontrado al usuario',body.correo_bloquear)
                     return {
                         estado: 400,
                         mensaje: 'Usuario a bloquear no encontrado'

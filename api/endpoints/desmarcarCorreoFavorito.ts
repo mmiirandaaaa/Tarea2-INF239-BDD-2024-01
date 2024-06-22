@@ -9,6 +9,8 @@ interface DesmarcarCorreoFavoritoBody {
   id_correo_favorito: number;
 }
 
+let fecha = new Date()
+
 /**
  * Realiza una petición tipo DELETE para desmarcar un correo como favorito.
  * Se recibe un JSON con las credenciales del usuario y el ID del correo a desmarcar como favorito.
@@ -17,6 +19,8 @@ interface DesmarcarCorreoFavoritoBody {
 export const desmarcarCorreoFavorito = new Elysia()
   .delete('/api/desmarcarcorreo', async ({ body }: { body: DesmarcarCorreoFavoritoBody }) => {
     const { correo, clave, id_correo_favorito } = body;
+
+    console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] Usuario',body.correo, 'está intentando desmarcar de favoritos el correo',body.id_correo_favorito);
 
     try {
       // Verificar credenciales del usuario
@@ -47,12 +51,17 @@ export const desmarcarCorreoFavorito = new Elysia()
               },
             },
           });
+          
+          console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] El usuario',body.correo, 'ha desmarcado de favoritos el correo',body.id_correo_favorito);
 
           return {
             estado: 200,
             mensaje: 'Correo desmarcado como favorito correctamente',
           };
         } else {
+
+          console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] No existe el correo',body.id_correo_favorito);
+  
           return {
             estado: 400,
             mensaje: 'El correo a desmarcar como favorito no existe',

@@ -9,6 +9,8 @@ interface MarcarCorreoFavoritoBody {
   id_correo_favorito: number;
 }
 
+let fecha = new Date()
+
 /**
  * Realiza una petición tipo POST para marcar un correo como favorito.
  * Se recibe un JSON con las credenciales del usuario y el ID del correo a marcar como favorito.
@@ -17,6 +19,8 @@ interface MarcarCorreoFavoritoBody {
 export const marcarCorreoFavorito = new Elysia()
   .post('/api/marcarcorreo', async ({ body }: { body: MarcarCorreoFavoritoBody }) => {
     const { correo, clave, id_correo_favorito } = body;
+
+    console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] Usuario',body.correo, 'está intentando marcar como favorito el correo',body.id_correo_favorito);
 
     try {
       // Verificar credenciales del usuario
@@ -39,12 +43,15 @@ export const marcarCorreoFavorito = new Elysia()
             },
           });
 
+          console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] Petición cumplida con éxito.',body.correo,'ha agregado como favorito el correo',body.id_correo_favorito);
+
           return {
             estado: 200,
             mensaje: 'Correo marcado como favorito correctamente',
             favorito,
           };
         } else {
+          console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] El correo que se quiere marcar no existe')
           return {
             estado: 400,
             mensaje: 'El correo a marcar como favorito no existe',

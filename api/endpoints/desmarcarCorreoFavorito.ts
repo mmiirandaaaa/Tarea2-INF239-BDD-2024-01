@@ -11,44 +11,75 @@ interface DesmarcarCorreoFavoritoBody {
 
 /**
  * Realiza una petición tipo DELETE para desmarcar un correo como favorito.
- * Se recibe un JSON con las credenciales del usuario y el ID del correo a desmarcar.
+ * Se recibe un JSON con las credenciales del usuario y el ID del correo a desmarcar como favorito.
  * Devuelve un JSON con el estado de la operación.
  */
 export const desmarcarCorreoFavorito = new Elysia()
-    .delete('/api/desmarcarcorreo', async ({ body }: { body: DesmarcarCorreoFavoritoBody }) => {
-        const { correo, clave, id_correo_favorito } = body;
-        
-        try {
-            // Buscar al usuario en la base de datos
-            const usuario = await prisma.usuario.findUnique({ where: { correo } });
-            
-            if (usuario && usuario.clave === clave) {
-                // Desmarcar el correo como favorito
-                await prisma.favoritos.deleteMany({
-                    where: {
-                        usuario_id: usuario.id,
-                        correo_id: id_correo_favorito,
-                    },
-                });
-                
-                return {
-                    estado: 200,
-                    mensaje: 'Correo desmarcado como favorito'
-                };
-            } else {
-                return {
-                    estado: 400,
-                    mensaje: 'Credenciales incorrectas'
-                };
-            }
-        } catch (error) {
-            // Manejo de errores
-            return {
-                estado: 400,
-                mensaje: 'Error al desmarcar correo como favorito',
-                error
-            };
+  .delete('/api/desmarcarcorreo', async ({ body }: { body: DesmarcarCorreoFavoritoBody }) => {
+    const { correo, clave, id_correo_favorito } = body;
+
+    try {
+      // Verificar credenciales del usuario
+      if (!correo || !clave) {
+        throw new Error('Correo y clave son requeridos');
+      }
+
+      const usuario = await prisma.usuario.findUnique({ where: { correo } });
+
+      if (usuario && usuario.clave === clave) {
+        // Verificar que el correo favorito existe
+        const favorito = await prisma.favoritos.findUnique({
+          where: {
+            usuario_id_correo_id: {
+              usuario_id: usuario.id,
+              correo_id: id_correo_favorito,
+            },
+          },
+        });
+
+        if (favorito) {
+          // Desmarcar el correo como favorito
+          await prisma.favoritos.delete({
+            where: {
+              usuario_id_correo_id: {
+                usuario_id: usuario.id,
+                correo_id: id_correo_favorito,
+              },
+            },
+          });
+
+          return {
+            estado: 200,
+            mensaje: 'Correo desmarcado como favorito correctamente',
+          };
+        } else {
+          return {
+            estado: 400,
+            mensaje: 'El correo a desmarcar como favorito no existe',
+          };
         }
-    });
+      } else {
+        return {
+          estado: 400,
+          mensaje: 'Credenciales incorrectas',
+        };
+      }
+    } catch (error: unknown) {
+      // Manejo de errores
+      console.error('Error al desmarcar correo como favorito:', error);
+      if (error instanceof Error) {
+        return {
+          estado: 400,
+          mensaje: 'Error al desmarcar correo como favorito',
+          error: error.message,  // Añadir mensaje de error detallado
+        };
+      } else {
+        return {
+          estado: 400,
+          mensaje: 'Error desconocido al desmarcar correo como favorito',
+        };
+      }
+    }
+  });
 
 export default desmarcarCorreoFavorito;

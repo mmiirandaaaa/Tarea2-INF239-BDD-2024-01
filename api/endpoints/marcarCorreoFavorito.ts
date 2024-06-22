@@ -15,41 +15,63 @@ interface MarcarCorreoFavoritoBody {
  * Devuelve un JSON con el estado de la operación.
  */
 export const marcarCorreoFavorito = new Elysia()
-    .post('/api/marcarcorreo', async ({ body }: { body: MarcarCorreoFavoritoBody }) => {
-        const { correo, clave, id_correo_favorito } = body;
-        
-        try {
-            // Buscar al usuario en la base de datos
-            const usuario = await prisma.usuario.findUnique({ where: { correo } });
-            
-            if (usuario && usuario.clave === clave) {
-                // Marcar el correo como favorito
-                const favorito = await prisma.favoritos.create({
-                    data: {
-                        usuario_id: usuario.id,
-                        correo_id: id_correo_favorito,
-                    },
-                });
-                
-                return {
-                    estado: 200,
-                    mensaje: 'Correo marcado como favorito',
-                    favorito
-                };
-            } else {
-                return {
-                    estado: 400,
-                    mensaje: 'Credenciales incorrectas'
-                };
-            }
-        } catch (error) {
-            // Manejo de errores
-            return {
-                estado: 400,
-                mensaje: 'Error al marcar correo como favorito',
-                error
-            };
+  .post('/api/marcarcorreo', async ({ body }: { body: MarcarCorreoFavoritoBody }) => {
+    const { correo, clave, id_correo_favorito } = body;
+
+    try {
+      // Verificar credenciales del usuario
+      if (!correo || !clave) {
+        throw new Error('Correo y clave son requeridos');
+      }
+
+      const usuario = await prisma.usuario.findUnique({ where: { correo } });
+
+      if (usuario && usuario.clave === clave) {
+        // Verificar que el correo existe
+        const correoFavorito = await prisma.correos.findUnique({ where: { id: id_correo_favorito } });
+
+        if (correoFavorito) {
+          // Marcar el correo como favorito
+          const favorito = await prisma.favoritos.create({
+            data: {
+              usuario_id: usuario.id,
+              correo_id: correoFavorito.id,
+            },
+          });
+
+          return {
+            estado: 200,
+            mensaje: 'Correo marcado como favorito correctamente',
+            favorito,
+          };
+        } else {
+          return {
+            estado: 400,
+            mensaje: 'El correo a marcar como favorito no existe',
+          };
         }
+      } else {
+        return {
+          estado: 400,
+            mensaje: 'Credenciales incorrectas',
+          };
+        }
+      } catch (error: unknown) {
+        // Manejo de errores
+        console.error('Error al marcar correo como favorito:', error);
+        if (error instanceof Error) {
+          return {
+            estado: 400,
+            mensaje: 'Error al marcar correo como favorito',
+            error: error.message,  // Añadir mensaje de error detallado
+          };
+        } else {
+          return {
+            estado: 400,
+            mensaje: 'Error desconocido al marcar correo como favorito',
+          };
+        }
+      }
     });
 
 export default marcarCorreoFavorito;

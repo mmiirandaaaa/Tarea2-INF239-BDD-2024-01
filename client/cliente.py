@@ -57,6 +57,7 @@ def consumir_api(operacion, usuario, clave):
                     print("\nDe: " + correo["remitente"] + "  Para: " + correo["destinatario"])
                     print("Asunto: " + correo["asunto"])
                     print("Cuerpo: " + correo["cuerpo"])
+                    print("ID:", correo["id"])
                     print("Fecha: " + correo["fecha"][:10])
         
         else:

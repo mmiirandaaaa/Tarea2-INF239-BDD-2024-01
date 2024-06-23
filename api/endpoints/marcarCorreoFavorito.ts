@@ -9,8 +9,6 @@ interface MarcarCorreoFavoritoBody {
   id_correo_favorito: number;
 }
 
-let fecha = new Date()
-
 /**
  * Realiza una petición tipo POST para marcar un correo como favorito.
  * Se recibe un JSON con las credenciales del usuario y el ID del correo a marcar como favorito.
@@ -20,7 +18,9 @@ export const marcarCorreoFavorito = new Elysia()
   .post('/api/marcarcorreo', async ({ body }: { body: MarcarCorreoFavoritoBody }) => {
     const { correo, clave, id_correo_favorito } = body;
 
-    console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] Usuario',body.correo, 'está intentando marcar como favorito el correo',body.id_correo_favorito);
+    let fecha = new Date()
+
+    console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] Solicitud recibida para marcar como favorito el correo',body.id_correo_favorito, 'en los favoritos del usuario', body.correo);
 
     try {
       // Verificar credenciales del usuario
@@ -32,18 +32,18 @@ export const marcarCorreoFavorito = new Elysia()
 
       if (usuario && usuario.clave === clave) {
         // Verificar que el correo existe
-        const correoFavorito = await prisma.correos.findUnique({ where: { id: id_correo_favorito } });
-
-        if (correoFavorito) {
-          // Marcar el correo como favorito
+        const correofavorito = await prisma.correos.findUnique({ where: { id: id_correo_favorito } });
+        
+        if (correofavorito?.destinatario_id === usuario.id || correofavorito?.remitente_id === usuario.id) {
+          // Verificamos que el usuario que quiere guardar el correo como favorito es remitente o destinatario del mensaje, es decir, tiene acceso a este
           const favorito = await prisma.favoritos.create({
             data: {
               usuario_id: usuario.id,
-              correo_id: correoFavorito.id,
+              correo_id: correofavorito.id,
             },
           });
 
-          console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] Petición cumplida con éxito.',body.correo,'ha agregado como favorito el correo',body.id_correo_favorito);
+          console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] Petición cumplida con éxito. Se ha agregado como el correo',body.id_correo_favorito, 'a los favoritos de',body.correo, 'con éxito');
 
           return {
             estado: 200,
@@ -51,7 +51,7 @@ export const marcarCorreoFavorito = new Elysia()
             favorito,
           };
         } else {
-          console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] El correo que se quiere marcar no existe')
+          console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] El correo que se quiere marcar no existe o no es del usuario')
           return {
             estado: 400,
             mensaje: 'El correo a marcar como favorito no existe',

@@ -9,8 +9,6 @@ interface BloquearUsuarioBody {
   correo_bloquear: string;
 }
 
-let fecha = new Date()
-
 /*
  * Realiza una petición tipo POST para bloquear a un usuario.
  * Se recibe un JSON con las credenciales del usuario y el correo del usuario a bloquear.
@@ -20,6 +18,8 @@ export const bloquearUsuario = new Elysia()
     .post('/api/bloquear', async ({ body }: { body: BloquearUsuarioBody }) => {
         const { correo, clave, correo_bloquear } = body;
         
+        let fecha = new Date()
+
         console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] Solicitud de bloquear al usuario:', body.correo_bloquear)
 
         try {

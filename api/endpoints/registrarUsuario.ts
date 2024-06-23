@@ -10,8 +10,6 @@ interface RegistrarUsuarioBody {
   descripcion?: string;
 }
 
-let fecha = new Date()
-
 /**
  * Realiza una petición tipo POST para registrar un nuevo usuario.
  * Se recibe un JSON con los datos del usuario y se guarda en la base de datos.
@@ -19,6 +17,8 @@ let fecha = new Date()
  */
 export const registrarUsuario = new Elysia()
     .post('/api/registrar', async ({ body }: { body: RegistrarUsuarioBody }) => {
+
+        let fecha = new Date()
 
         console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] Solicitud recibida de registro de usuario:',body.correo);
 

@@ -7,8 +7,6 @@ interface ObtenerInformacionParams {
   correo: string;
 }
 
-let fecha = new Date()
-
 /**
  * Realiza una petición tipo GET para obtener información de un usuario.
  * Se recibe el correo del usuario como parámetro.
@@ -17,7 +15,11 @@ let fecha = new Date()
 export const obtenerInformacionUsuario = new Elysia()
     .get('/api/informacion/:correo', async ({ params }: { params: ObtenerInformacionParams }) => {
         const { correo } = params;
+        
+        let fecha = new Date()
+        
         console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] Solicitud para encontrar al usuario:', params.correo, 'recibida')
+
         try {
             // Buscar al usuario en la base de datos
             const usuario = await prisma.usuario.findUnique({ where: { correo } });

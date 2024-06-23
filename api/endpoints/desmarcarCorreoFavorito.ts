@@ -9,8 +9,6 @@ interface DesmarcarCorreoFavoritoBody {
   id_correo_favorito: number;
 }
 
-let fecha = new Date()
-
 /**
  * Realiza una petición tipo DELETE para desmarcar un correo como favorito.
  * Se recibe un JSON con las credenciales del usuario y el ID del correo a desmarcar como favorito.
@@ -20,7 +18,9 @@ export const desmarcarCorreoFavorito = new Elysia()
   .delete('/api/desmarcarcorreo', async ({ body }: { body: DesmarcarCorreoFavoritoBody }) => {
     const { correo, clave, id_correo_favorito } = body;
 
-    console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] Usuario',body.correo, 'está intentando desmarcar de favoritos el correo',body.id_correo_favorito);
+    let fecha = new Date()
+
+    console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] Se ha recibido una solicitud para desmarcar un correo de los favoritos de', body.correo);
 
     try {
       // Verificar credenciales del usuario
@@ -32,27 +32,17 @@ export const desmarcarCorreoFavorito = new Elysia()
 
       if (usuario && usuario.clave === clave) {
         // Verificar que el correo favorito existe
-        const favorito = await prisma.favoritos.findUnique({
-          where: {
-            usuario_id_correo_id: {
-              usuario_id: usuario.id,
-              correo_id: id_correo_favorito,
-            },
-          },
-        });
+        const favorito = await prisma.favoritos.findUnique({ where: { id: id_correo_favorito } });
 
-        if (favorito) {
+        if (favorito?.usuario_id === usuario.id) {
           // Desmarcar el correo como favorito
-          await prisma.favoritos.delete({
-            where: {
-              usuario_id_correo_id: {
-                usuario_id: usuario.id,
-                correo_id: id_correo_favorito,
-              },
+          const eliminado = await prisma.favoritos.delete({
+            where : {
+              id : id_correo_favorito,
             },
-          });
+          })
           
-          console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] El usuario',body.correo, 'ha desmarcado de favoritos el correo',body.id_correo_favorito);
+          console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] El correo',eliminado.correo_id, 'se ha desmarcado de los favoritos de', body.correo);
 
           return {
             estado: 200,
@@ -60,7 +50,7 @@ export const desmarcarCorreoFavorito = new Elysia()
           };
         } else {
 
-          console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] No existe el correo',body.id_correo_favorito);
+          console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] El usuario', body.correo, 'no tiene el correo', body.id_correo_favorito, 'en sus favoritos o no existe');
   
           return {
             estado: 400,

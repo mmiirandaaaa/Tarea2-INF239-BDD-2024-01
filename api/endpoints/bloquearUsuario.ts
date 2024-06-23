@@ -20,7 +20,7 @@ export const bloquearUsuario = new Elysia()
         
         let fecha = new Date()
 
-        console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] Solicitud de bloquear al usuario:', body.correo_bloquear)
+        console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] Solicitud de',body.correo,'para bloquear al usuario:', body.correo_bloquear)
 
         try {
             // Buscar al usuario que hace la petición en la base de datos
@@ -39,7 +39,7 @@ export const bloquearUsuario = new Elysia()
                         },
                     });
 
-                    console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] Se ha bloqueado al usuario:',usuarioBloqueado.correo)
+                    console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] El usuario',body.correo,'ha bloqueado al usuario:',usuarioBloqueado.correo)
                     
                     return {
                         estado: 200,
@@ -54,13 +54,14 @@ export const bloquearUsuario = new Elysia()
                     };
                 }
             } else {
+                console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] El usuario',body.correo,'no existe o la clave no corresponde a ese correo')
                 return {
                     estado: 400,
                     mensaje: 'Credenciales incorrectas'
                 };
             }
         } catch (error) {
-            // Manejo de errores
+            console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] Ha ocurrido un error. Podría ser que el usuario',body.correo,'ya tenga bloqueado al usuario:',body.correo_bloquear)
             return {
                 estado: 400,
                 mensaje: 'Error al bloquear usuario',

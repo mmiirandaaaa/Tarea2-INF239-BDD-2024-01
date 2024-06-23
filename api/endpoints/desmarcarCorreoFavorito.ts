@@ -58,6 +58,7 @@ export const desmarcarCorreoFavorito = new Elysia()
           };
         }
       } else {
+        console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] El usuario o la clave están mal ingresados');
         return {
           estado: 400,
           mensaje: 'Credenciales incorrectas',
@@ -65,19 +66,11 @@ export const desmarcarCorreoFavorito = new Elysia()
       }
     } catch (error: unknown) {
       // Manejo de errores
-      console.error('Error al desmarcar correo como favorito:', error);
-      if (error instanceof Error) {
-        return {
-          estado: 400,
-          mensaje: 'Error al desmarcar correo como favorito',
-          error: error.message,  // Añadir mensaje de error detallado
-        };
-      } else {
-        return {
-          estado: 400,
-          mensaje: 'Error desconocido al desmarcar correo como favorito',
-        };
-      }
+      console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] Ha ocurrido un error con la solicitud para desmarcar el correo',body.id_correo_favorito,'de los favoritos de',body.correo, '. Puede que los parámetros no sean correctos');
+      return {
+        estado: 400,
+        mensaje: 'Error al desmarcar correo como favorito'
+      };
     }
   });
 

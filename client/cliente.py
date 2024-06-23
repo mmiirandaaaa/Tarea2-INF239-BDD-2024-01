@@ -1,6 +1,11 @@
 import requests
 import os, sys, time
 
+'''
+ Resumen: Printea un logo para el cliente
+ Inputs: Ninguno
+ Devuelve: Nada
+'''
 def mostrar_logo():
     print("  ####    #####   ##   ##  ##   ##  ##   ##  ##   ##  ##   ##   ####             ###  ##  #######  ##   ##")
     print(" ##  ##  ##   ##  ### ###  ### ###  ##   ##  ###  ##  ###  ##    ##               ##  ##   ##   #  ###  ##")
@@ -10,11 +15,15 @@ def mostrar_logo():
     print(" ##  ##  ##   ##  ##   ##  ##   ##  ##   ##  ##   ##  ##   ##    ##               ##  ##   ##   #  ##   ##")
     print("  ####    #####   ##   ##  ##   ##   #####   ##   ##  ##   ##   ####             ###  ##  #######  ##   ##\n\n")
 
-
+'''
+ Resumen: Realiza una consulta a la api para verificar que el usuario pasado por parámetro exista en la bd y coincida su clave con la clave pasada por parámetro
+ Inputs: String usuario, String clave
+ Devuelve: Boolean: True si el inicio de sesión fue exitoso (existe el usuario y clave es igual a la clave del usuario en la bd), False en caso contrario
+'''
 def iniciar_sesion(usuario, clave):
     url = 'http://localhost:3000/api/informacion/'+usuario
 
-    respuesta = requests.get(url).json()
+    respuesta = requests.get(url).json() # Obtiene de inmediato un diccionario en la var respuesta con el JSON que devuelve el servidor
 
     if respuesta["estado"] == 200:
         if respuesta["usuario"]["clave"] == clave:
@@ -27,7 +36,11 @@ def iniciar_sesion(usuario, clave):
         print("Este correo no existe >:c\n")
         return False
 
-
+'''
+ Resumen: Interactúa con la api dependiendo del parámtro operacion.
+ Inputs: String operacion, String usuario, String clave
+ Devuelve: Nada, sólo hace prints
+'''
 def consumir_api(operacion, usuario, clave):
     url = 'http://localhost:3000/api/'+operacion
     
@@ -38,20 +51,19 @@ def consumir_api(operacion, usuario, clave):
 
         if respuesta["estado"] == 200:
             print("\nInformación de " + usuario)
-            for key in respuesta["usuario"]:
-                if key != "id" and key != "clave":
+            for key in respuesta["usuario"]: # respuesta["usuario"] es un diccionario con la informacion del usuario en el formato {"id": id, "correo": correo, "clave": clave, "descripcion": descripcion}
+                if key != "id" and key != "clave": # Se decidió no mostrar ni el ID ni la Clave de un usuario a otros que consulten por la información de este
                     print(key+" -> "+str(respuesta["usuario"][key]))
         else:
             print("\nAlgo salió mal :C (no se encontró el correo)")
 
     elif operacion == "favoritos":
         url = url + "/" + usuario
-        respuesta = requests.get(url).json()
+        respuesta = requests.get(url).json() # Es de la forma {"estado": estado, "mensaje": mensaje, "arreglo_correos": arreglo con los correos favoritos del usuario}
 
         if respuesta["estado"] == 200:
-            print("\nTienes", len(respuesta["arreglo_correos"]), "correos marcados como favoritos")
-            
-            if len(respuesta["arreglo_correos"]) > 0:
+            print("\nTienes", len(respuesta["arreglo_correos"]), "correos marcados como favoritos") # respuesta["arreglo_correos"] es de la forma {"id": id, "asunto": asunto, "cuerpo": cuerpo, "fecha": fecha, "remitente": correo del remitente, "destinatario": correo del destinatario}
+            if len(respuesta["arreglo_correos"]) > 0: # Desplegará la info sólo si tiene correos favoritos
                 print("Tus correos marcados son:")
                 for correo in respuesta["arreglo_correos"]:
                     print("\nDe: " + correo["remitente"] + "  Para: " + correo["destinatario"])
@@ -59,7 +71,6 @@ def consumir_api(operacion, usuario, clave):
                     print("Cuerpo: " + correo["cuerpo"])
                     print("ID:", correo["id"])
                     print("Fecha: " + correo["fecha"][:10])
-        
         else:
             print("Algo salió mal :(")
             
@@ -91,9 +102,9 @@ while not puedo_pasar and intentos<=3:
 
 if intentos > 3 and not puedo_pasar:
     print("3 intentos fallidos, cerrando el programa")
-    time.sleep(1)
     sys.exit(1)
 
+# Desición estética para el cliente
 time.sleep(3)
 os.system("cls")
 
@@ -112,4 +123,3 @@ while opcion != 4:
     opcion = int(input("\nIngrese opción: "))
 
 print("Hasta la próxima ;D")
-time.sleep(2)

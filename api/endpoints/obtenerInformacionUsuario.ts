@@ -31,6 +31,7 @@ export const obtenerInformacionUsuario = new Elysia()
                     usuario
                 };
             } else {
+                console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] No existe el usuario', params.correo)
                 return {
                     estado: 400,
                     mensaje: 'Usuario no encontrado'

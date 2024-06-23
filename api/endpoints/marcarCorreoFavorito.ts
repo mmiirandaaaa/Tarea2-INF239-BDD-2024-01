@@ -51,33 +51,26 @@ export const marcarCorreoFavorito = new Elysia()
             favorito,
           };
         } else {
-          console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] El correo que se quiere marcar no existe o no es del usuario')
+          console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] El correo',body.id_correo_favorito,' no existe o no es del usuario');
           return {
             estado: 400,
             mensaje: 'El correo a marcar como favorito no existe',
           };
         }
       } else {
+        console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] Usuario inexistente o clave errónea');
         return {
           estado: 400,
-            mensaje: 'Credenciales incorrectas',
+          mensaje: 'Credenciales incorrectas',
           };
         }
       } catch (error: unknown) {
         // Manejo de errores
-        console.error('Error al marcar correo como favorito:', error);
-        if (error instanceof Error) {
-          return {
-            estado: 400,
-            mensaje: 'Error al marcar correo como favorito',
-            error: error.message,  // Añadir mensaje de error detallado
-          };
-        } else {
-          return {
-            estado: 400,
-            mensaje: 'Error desconocido al marcar correo como favorito',
-          };
-        }
+        console.log('['+String(fecha.getHours())+':'+String(fecha.getMinutes())+'] Ocurrió un error al intentar agregar el correo',body.id_correo_favorito,'a los favoritos del usuario',body.correo,'. Puede que el correo ya esté en su lista');
+        return {
+          estado: 400,
+          mensaje: 'Error al marcar correo como favorito'
+        };
       }
     });
 

@@ -72,7 +72,10 @@ def consumir_api(operacion, usuario, clave):
         if respuesta["estado"] == 200:
             print("Agregaste el correo",id_correo_favorito,"a tus favoritos ;)")
         else:
-            print("El correo que estás intentando agregar no está dentro de los correos que hayas enviado o que te hayan llegado :/")
+            if respuesta["mensaje"] == "El correo a marcar como favorito no existe":
+                print("El correo que estás intentando agregar no está dentro de los correos que hayas enviado o que te hayan llegado :/")
+            else:
+                print("Ocurrió un error con tu solicitud. Fíjate si el correo que estás intentando agregar se encuentra actualmente en tu lista ;)")
 
 
 print("\n-------- BIENVENIDO AL SISTEMA DE CORREOS COMMUNIKEN --------\n\n")
